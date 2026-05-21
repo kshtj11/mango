@@ -17,26 +17,16 @@
     .screen {
       position: absolute;
       inset: 0;
-      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* ── Lock Screen ── */
     #lockscreen {
+      z-index: 3;
       background-color: #0d0d0d;
       background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
       background-size: 18px 18px;
     }
-    #homescreen {
-      transform: translateY(100%);
-      background: #0e0e0e;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 16px 0;
-      gap: 14px;
-    }
-    #app.home #lockscreen { transform: translateY(-100%); }
-    #app.home #homescreen { transform: translateY(0); }
-
     .statusbar {
       display: flex;
       justify-content: space-between;
@@ -63,23 +53,36 @@
     .battery-fill { width: 55%; height: 100%; background: #ccc; border-radius: 1px; }
     .battery-tip { width: 2px; height: 5px; background: #ccc; border-radius: 0 1px 1px 0; }
 
-    /* ── App Icon Component ── */
-    .app-icon {
-      width: 103px;
-      height: 103px;
-      background: #1e1e1e;
-      border-radius: 24px;
-      flex-shrink: 0;
+    /* ── Homepage (dock) ── */
+    #homepage {
+      z-index: 1;
+      background: #050505;
+      display: flex;
+      align-items: flex-end;
+      transform: translateX(-100%);
+    }
+    .home-dock {
+      display: flex;
+      gap: 12px;
+      padding: 16px 16px 24px;
+      width: 100%;
     }
 
-    /* ── Top Dock ── */
+    /* ── App List Screen ── */
+    #homescreen {
+      z-index: 2;
+      background: #0e0e0e;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px 0;
+      gap: 14px;
+      transform: translateY(100%);
+    }
     .top-dock {
       display: flex;
       gap: 12px;
       flex-shrink: 0;
     }
-
-    /* ── Search Bar ── */
     .search-bar {
       height: 44px;
       background: #1a1a1a;
@@ -91,8 +94,6 @@
       gap: 10px;
       flex-shrink: 0;
     }
-
-    /* ── Scrollable Grid Section ── */
     .grid-section {
       display: flex;
       flex-direction: column;
@@ -100,7 +101,6 @@
       flex: 1;
       min-height: 0;
     }
-
     .app-scroll {
       overflow-x: scroll;
       overflow-y: hidden;
@@ -111,7 +111,6 @@
     }
     .app-scroll::-webkit-scrollbar { display: none; }
     .app-scroll.dragging { cursor: grabbing; }
-
     .app-grid {
       display: grid;
       grid-template-rows: repeat(2, 103px);
@@ -120,8 +119,6 @@
       gap: 12px;
       width: max-content;
     }
-
-    /* ── Scrollbar ── */
     .scrollbar-track {
       height: 3px;
       background: #222;
@@ -137,12 +134,29 @@
       background: #555;
       border-radius: 2px;
     }
+
+    /* ── App Icon ── */
+    .app-icon {
+      width: 103px;
+      height: 103px;
+      background: #1e1e1e;
+      border-radius: 24px;
+      flex-shrink: 0;
+    }
+
+    /* Left-edge swipe zone on homescreen */
+    #edge-zone {
+      position: absolute;
+      left: 0; top: 0;
+      width: 32px; height: 100%;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
   <div id="app">
 
-    <!-- Lock Screen -->
+    <!-- Screen 1: Lock -->
     <div id="lockscreen" class="screen">
       <div class="statusbar">
         <span>11 April &nbsp; 12:30</span>
@@ -157,10 +171,21 @@
       <div class="swipe-hint">Swipe up to go to homescreen</div>
     </div>
 
-    <!-- Home Screen -->
-    <div id="homescreen" class="screen">
+    <!-- Screen 2: Homepage / Dock -->
+    <div id="homepage" class="screen">
+      <div class="home-dock">
+        <div class="app-icon"></div>
+        <div class="app-icon"></div>
+        <div class="app-icon"></div>
+        <div class="app-icon"></div>
+      </div>
+    </div>
 
-      <!-- Top dock: 4 fixed icons -->
+    <!-- Screen 3: App List -->
+    <div id="homescreen" class="screen">
+      <!-- left-edge gesture zone -->
+      <div id="edge-zone"></div>
+
       <div class="top-dock">
         <div class="app-icon"></div>
         <div class="app-icon"></div>
@@ -168,7 +193,6 @@
         <div class="app-icon"></div>
       </div>
 
-      <!-- Search bar -->
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="7" cy="7" r="5.5" stroke="#555" stroke-width="1.5"/>
@@ -176,7 +200,6 @@
         </svg>
       </div>
 
-      <!-- Scrollable 2-row grid -->
       <div class="grid-section">
         <div class="app-scroll" id="appScroll">
           <div class="app-grid" id="appGrid"></div>
@@ -185,12 +208,19 @@
           <div class="scrollbar-thumb" id="scrollThumb"></div>
         </div>
       </div>
-
     </div>
+
   </div>
 
   <script>
-    // Populate app grid (10 cols x 2 rows = 20 icons)
+    const lockscreen = document.getElementById('lockscreen');
+    const homescreen = document.getElementById('homescreen');
+    const homepage   = document.getElementById('homepage');
+    const scrollEl   = document.getElementById('appScroll');
+    const thumb      = document.getElementById('scrollThumb');
+    const edgeZone   = document.getElementById('edge-zone');
+
+    // Populate app grid
     const grid = document.getElementById('appGrid');
     for (let i = 0; i < 20; i++) {
       const el = document.createElement('div');
@@ -198,35 +228,54 @@
       grid.appendChild(el);
     }
 
-    // ── Swipe up to unlock ──
-    const lock = document.getElementById('lockscreen');
-    const appEl = document.getElementById('app');
-    let lockStartY = 0;
+    // ── Screen transitions ──
+    function goToAppList() {
+      lockscreen.style.transform  = 'translateY(-100%)';
+      homescreen.style.transform  = 'translateX(0)';
+      homepage.style.transform    = 'translateX(-100%)';
+    }
 
-    lock.addEventListener('mousedown', e => { lockStartY = e.clientY; });
-    lock.addEventListener('mouseup', e => { if (lockStartY - e.clientY > 20) appEl.classList.add('home'); });
-    lock.addEventListener('touchstart', e => { lockStartY = e.touches[0].clientY; }, { passive: true });
-    lock.addEventListener('touchend', e => { if (lockStartY - e.changedTouches[0].clientY > 20) appEl.classList.add('home'); });
+    function goToHomepage() {
+      homescreen.style.transform  = 'translateX(100%)';
+      homepage.style.transform    = 'translateX(0)';
+    }
 
-    // ── Drag-to-scroll with momentum ──
-    const scrollEl = document.getElementById('appScroll');
-    const thumb = document.getElementById('scrollThumb');
+    function goBackToAppList() {
+      homescreen.style.transform  = 'translateX(0)';
+      homepage.style.transform    = 'translateX(-100%)';
+    }
 
-    let isDragging = false;
-    let dragStartX = 0;
-    let scrollStart = 0;
-    let velocity = 0;
-    let lastX = 0;
-    let lastT = 0;
-    let raf = null;
+    // ── Lock screen: swipe up ──
+    let lockSY = 0;
+    lockscreen.addEventListener('mousedown', e => { lockSY = e.clientY; });
+    lockscreen.addEventListener('mouseup',   e => { if (lockSY - e.clientY > 20) goToAppList(); });
+    lockscreen.addEventListener('touchstart', e => { lockSY = e.touches[0].clientY; }, { passive: true });
+    lockscreen.addEventListener('touchend',   e => { if (lockSY - e.changedTouches[0].clientY > 20) goToAppList(); });
+
+    // ── Edge zone: swipe right to go to homepage ──
+    let edgeSX = 0;
+    edgeZone.addEventListener('pointerdown', e => {
+      edgeSX = e.clientX;
+      edgeZone.setPointerCapture(e.pointerId);
+    });
+    edgeZone.addEventListener('pointerup', e => {
+      if (e.clientX - edgeSX > 60) goToHomepage();
+    });
+
+    // ── Homepage: swipe left to go back ──
+    let homeSX = 0;
+    homepage.addEventListener('pointerdown', e => { homeSX = e.clientX; });
+    homepage.addEventListener('pointerup',   e => { if (homeSX - e.clientX > 60) goBackToAppList(); });
+
+    // ── App scroll: drag with momentum ──
+    let isDragging = false, dragSX = 0, scrollStart = 0;
+    let velocity = 0, lastX = 0, lastT = 0, raf = null;
 
     scrollEl.addEventListener('pointerdown', e => {
       isDragging = true;
-      dragStartX = e.clientX;
+      dragSX = e.clientX;
       scrollStart = scrollEl.scrollLeft;
-      lastX = e.clientX;
-      lastT = performance.now();
-      velocity = 0;
+      lastX = e.clientX; lastT = performance.now(); velocity = 0;
       if (raf) cancelAnimationFrame(raf);
       scrollEl.setPointerCapture(e.pointerId);
       scrollEl.classList.add('dragging');
@@ -236,11 +285,9 @@
     scrollEl.addEventListener('pointermove', e => {
       if (!isDragging) return;
       const now = performance.now();
-      const dt = now - lastT || 1;
-      velocity = (lastX - e.clientX) / dt * 16;
-      lastX = e.clientX;
-      lastT = now;
-      scrollEl.scrollLeft = scrollStart + (dragStartX - e.clientX);
+      velocity = (lastX - e.clientX) / (now - lastT || 1) * 16;
+      lastX = e.clientX; lastT = now;
+      scrollEl.scrollLeft = scrollStart + (dragSX - e.clientX);
       syncScrollbar();
     });
 
@@ -265,12 +312,10 @@
     function syncScrollbar() {
       const { scrollLeft, scrollWidth, clientWidth } = scrollEl;
       const thumbPct = clientWidth / scrollWidth * 100;
-      const maxLeft = 100 - thumbPct;
-      const leftPct = scrollWidth > clientWidth
-        ? (scrollLeft / (scrollWidth - clientWidth)) * maxLeft
-        : 0;
+      const leftPct  = scrollWidth > clientWidth
+        ? (scrollLeft / (scrollWidth - clientWidth)) * (100 - thumbPct) : 0;
       thumb.style.width = thumbPct + '%';
-      thumb.style.left = leftPct + '%';
+      thumb.style.left  = leftPct + '%';
     }
 
     scrollEl.addEventListener('scroll', syncScrollbar);
