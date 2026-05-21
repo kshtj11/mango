@@ -2,45 +2,144 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: transparent; }
+
+    #app {
+      position: fixed; top: 0; left: 0;
+      width: 480px; height: 480px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      touch-action: none; /* disable all browser touch handling — we own every gesture */
+    }
+    .screen { position: absolute; inset: 0; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
+
+    /* ── Lock ── */
+    #lockscreen { z-index: 3; background-color: #0d0d0d; background-image: radial-gradient(circle,#2a2a2a 1px,transparent 1px); background-size: 18px 18px; }
+    .statusbar { display:flex; justify-content:space-between; align-items:center; padding:10px 14px 0; font-size:12px; color:#ccc; }
+    .swipe-hint { position:absolute; bottom:38%; width:100%; text-align:center; font-size:13px; color:rgba(255,255,255,0.45); }
+    .wifi { display:flex; align-items:flex-end; gap:1.5px; height:12px; }
+    .wifi span { display:block; width:3px; background:#ccc; border-radius:1px; }
+    .wifi span:nth-child(1){height:5px} .wifi span:nth-child(2){height:8px} .wifi span:nth-child(3){height:11px}
+    .battery { display:flex; align-items:center; gap:1px; }
+    .battery-body { width:20px; height:10px; border:1.5px solid #ccc; border-radius:2px; padding:1.5px; }
+    .battery-fill { width:55%; height:100%; background:#ccc; border-radius:1px; }
+    .battery-tip { width:2px; height:5px; background:#ccc; border-radius:0 1px 1px 0; }
+
+    /* ── Homepage ── */
+    #homepage { z-index:1; background:#050505; display:flex; align-items:flex-end; transform:translateX(-100%); }
+    .home-dock { display:flex; gap:12px; padding:16px 16px 24px; width:100%; }
+
+    /* ── App List ── */
+    #homescreen { z-index:2; background:#0e0e0e; display:flex; flex-direction:column; padding:20px 16px 0; gap:14px; transform:translateY(100%); }
+    .top-dock { display:flex; gap:12px; flex-shrink:0; }
+    .search-bar { height:44px; background:#1a1a1a; border:1px solid #2c2c2c; border-radius:22px; display:flex; align-items:center; padding:0 16px; gap:10px; flex-shrink:0; }
+    .grid-section { display:flex; flex-direction:column; gap:12px; flex:1; min-height:0; }
+    .app-scroll { overflow-x:scroll; overflow-y:hidden; scrollbar-width:none; cursor:grab; user-select:none; }
+    .app-scroll::-webkit-scrollbar { display:none; }
+    .app-scroll.dragging { cursor:grabbing; }
+    .app-grid { display:grid; grid-template-rows:repeat(2,103px); grid-auto-flow:column; grid-auto-columns:103px; gap:12px; width:max-content; }
+    .scrollbar-track { height:3px; background:#222; border-radius:2px; margin-bottom:14px; position:relative; flex-shrink:0; }
+    .scrollbar-thumb { position:absolute; top:0; left:0; height:100%; background:#555; border-radius:2px; }
+
+    /* ── App Icon ── */
+    .app-icon { width:103px; height:103px; background:#1e1e1e; border-radius:24px; flex-shrink:0; }
+
+    /* ── Zones ── */
+    #edge-zone { position:absolute; left:0; top:0; width:40px; height:100%; z-index:10; }
+    .bottom-zone { position:absolute; bottom:0; left:0; width:100%; height:44px; z-index:20; }
+    .top-zone { position:absolute; top:0; left:0; width:100%; height:30px; z-index:30; }
+
+    /* ── Recents ── */
+    #recents { z-index:10; background:#080808; transform:translateY(100%); }
+    #recentsScroll { position:relative; width:100%; height:100%; cursor:grab; user-select:none; }
+    #recentsScroll.dragging { cursor:grabbing; }
+    .app-card { position:absolute; background:#252525; border-radius:24px; will-change:transform,left; }
+
+    /* ── Settings Drawer ── */
+    #settings-drawer {
+      z-index:20;
+      background:#111;
+      transform:translateY(-100%);
+      display:flex;
+      flex-direction:column;
+    }
+    .qs-content {
+      flex:1;
+      padding:20px 16px 12px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:12px;
+    }
+    .qs-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+    }
+    .qs-tile {
+      background:#1e1e1e;
+      border-radius:20px;
+      height:103px;
+    }
+    .qs-tile.wide {
+      grid-column:span 2;
+      height:85px;
+    }
+    .settings-tabs {
+      display:flex;
+      gap:8px;
+      padding:10px 16px 18px;
+      flex-shrink:0;
+    }
+    .s-tab {
+      flex:1;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:10px;
+      background:#1a1a1a;
+      color:#555;
+      font-size:12px;
+      cursor:pointer;
+      transition:background 0.15s, color 0.15s;
+    }
+    .s-tab.active { background:#272727; color:#ccc; }
+  </style>
 </head>
 <body>
   <div id="app">
 
-    <!-- Screen 1: Lock -->
+    <!-- Lock -->
     <div id="lockscreen" class="screen">
       <div class="statusbar">
         <span>11 April &nbsp; 12:30</span>
         <div style="display:flex;align-items:center;gap:6px">
           <div class="wifi"><span></span><span></span><span></span></div>
-          <div class="battery">
-            <div class="battery-body"><div class="battery-fill"></div></div>
-            <div class="battery-tip"></div>
-          </div>
+          <div class="battery"><div class="battery-body"><div class="battery-fill"></div></div><div class="battery-tip"></div></div>
         </div>
       </div>
       <div class="swipe-hint">Swipe up to go to homescreen</div>
     </div>
 
-    <!-- Screen 2: Homepage / Dock -->
+    <!-- Homepage / Dock -->
     <div id="homepage" class="screen">
       <div class="home-dock">
-        <div class="app-icon"></div>
-        <div class="app-icon"></div>
-        <div class="app-icon"></div>
-        <div class="app-icon"></div>
+        <div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div>
       </div>
+      <div class="top-zone" id="home-tz"></div>
       <div class="bottom-zone" id="home-bz"></div>
     </div>
 
-    <!-- Screen 3: App List -->
+    <!-- App List -->
     <div id="homescreen" class="screen">
       <div id="edge-zone"></div>
+      <div class="top-zone" id="list-tz"></div>
       <div class="top-dock">
-        <div class="app-icon"></div>
-        <div class="app-icon"></div>
-        <div class="app-icon"></div>
-        <div class="app-icon"></div>
+        <div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div><div class="app-icon"></div>
       </div>
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -49,29 +148,200 @@
         </svg>
       </div>
       <div class="grid-section">
-        <div class="app-scroll" id="appScroll">
-          <div class="app-grid" id="appGrid"></div>
-        </div>
-        <div class="scrollbar-track">
-          <div class="scrollbar-thumb" id="scrollThumb"></div>
-        </div>
+        <div class="app-scroll" id="appScroll"><div class="app-grid" id="appGrid"></div></div>
+        <div class="scrollbar-track"><div class="scrollbar-thumb" id="scrollThumb"></div></div>
       </div>
       <div class="bottom-zone" id="list-bz"></div>
     </div>
 
-    <!-- Screen 4: Recent Apps -->
+    <!-- Recents -->
     <div id="recents" class="screen">
-      <div class="recents-scroll" id="recentsScroll">
-        <div class="app-card"></div>
-        <div class="app-card"></div>
-        <div class="app-card"></div>
-        <div class="app-card"></div>
-        <div class="app-card"></div>
+      <div id="recentsScroll"></div>
+      <div class="top-zone" id="recents-tz"></div>
+    </div>
+
+    <!-- Settings Drawer -->
+    <div id="settings-drawer" class="screen">
+      <div class="qs-content">
+        <div class="qs-grid" id="qsGrid">
+          <div class="qs-tile"></div><div class="qs-tile"></div><div class="qs-tile"></div><div class="qs-tile"></div>
+          <div class="qs-tile"></div><div class="qs-tile"></div><div class="qs-tile"></div><div class="qs-tile"></div>
+          <div class="qs-tile wide"></div><div class="qs-tile wide"></div>
+        </div>
+      </div>
+      <div class="settings-tabs">
+        <div class="s-tab active" data-tab="settings">Settings</div>
+        <div class="s-tab" data-tab="notification">Notification</div>
+        <div class="s-tab" data-tab="message">Message</div>
+        <div class="s-tab" data-tab="misc">Misc</div>
       </div>
     </div>
 
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <script>
+    // ── Transitions ──
+    let prevScreen = 'homepage';
+    function goToAppList()    { document.getElementById('lockscreen').style.transform='translateY(-100%)'; document.getElementById('homescreen').style.transform='translateX(0)'; document.getElementById('homepage').style.transform='translateX(-100%)'; }
+    function goToHomepage()   { document.getElementById('homescreen').style.transform='translateX(100%)'; document.getElementById('homepage').style.transform='translateX(0)'; }
+    function goBackToAppList(){ document.getElementById('homescreen').style.transform='translateX(0)'; document.getElementById('homepage').style.transform='translateX(-100%)'; }
+    function openRecents(from){ prevScreen=from; document.getElementById('recents').style.transform='translateY(0)'; }
+    function closeRecents()   { document.getElementById('recents').style.transform='translateY(100%)'; }
+    function openSettings()   { document.getElementById('settings-drawer').style.transform='translateY(0)'; }
+    function closeSettings()  { document.getElementById('settings-drawer').style.transform='translateY(-100%)'; }
+
+    // ── App grid ──
+    const grid = document.getElementById('appGrid');
+    for (let i = 0; i < 20; i++) { const el=document.createElement('div'); el.className='app-icon'; grid.appendChild(el); }
+
+    // ── Lock: swipe up (pointer events only — no mouse/touch duplication) ──
+    const lockEl = document.getElementById('lockscreen');
+    let lockSY = 0;
+    lockEl.addEventListener('pointerdown', e => { lockSY = e.clientY; lockEl.setPointerCapture(e.pointerId); });
+    lockEl.addEventListener('pointerup',   e => { if (lockSY - e.clientY > 20) goToAppList(); });
+
+    // ── Homepage: swipe left ──
+    const homeEl = document.getElementById('homepage');
+    let homeSX = 0;
+    homeEl.addEventListener('pointerdown', e => { homeSX=e.clientX; });
+    homeEl.addEventListener('pointerup',   e => { if(homeSX-e.clientX>60) goBackToAppList(); });
+
+    // ── Top zones: swipe down → settings ──
+    function setupTopZone(el) {
+      let sy = 0, sx = 0;
+      el.addEventListener('pointerdown', e => { sy=e.clientY; sx=e.clientX; el.setPointerCapture(e.pointerId); });
+      el.addEventListener('pointerup',   e => { if(e.clientY-sy>30 && Math.abs(e.clientX-sx)<60) openSettings(); });
+    }
+    setupTopZone(document.getElementById('home-tz'));
+    setupTopZone(document.getElementById('list-tz'));
+    setupTopZone(document.getElementById('recents-tz'));
+
+    // ── Settings drawer: swipe up to close ──
+    const settingsDrawer = document.getElementById('settings-drawer');
+    let sSY = 0;
+    settingsDrawer.addEventListener('pointerdown', e => { sSY=e.clientY; });
+    settingsDrawer.addEventListener('pointerup',   e => { if(sSY-e.clientY>40) closeSettings(); });
+
+    // ── Settings tabs ──
+    document.querySelectorAll('.s-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // ── Bottom zones: long press or swipe up → recents ──
+    function setupBottomZone(el, screenName) {
+      let sx=0,sy=0,moved=false,timer=null;
+      el.addEventListener('pointerdown', e => { sx=e.clientX;sy=e.clientY;moved=false; el.setPointerCapture(e.pointerId); timer=setTimeout(()=>{if(!moved)openRecents(screenName);},500); });
+      el.addEventListener('pointermove', e => { if(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8){moved=true;clearTimeout(timer);} });
+      el.addEventListener('pointerup',   e => { clearTimeout(timer); if(sy-e.clientY>30)openRecents(screenName); });
+    }
+    setupBottomZone(document.getElementById('home-bz'),'homepage');
+    setupBottomZone(document.getElementById('list-bz'),'homescreen');
+
+    // ── Edge zone ──
+    const edgeZone = document.getElementById('edge-zone');
+    let edgeSX = 0;
+    edgeZone.addEventListener('pointerdown', e => { edgeSX=e.clientX; edgeZone.setPointerCapture(e.pointerId); });
+    edgeZone.addEventListener('pointerup',   e => { if(e.clientX-edgeSX>40) goToHomepage(); });
+
+    // ── App scroll drag ──
+    const scrollEl = document.getElementById('appScroll');
+    const thumb    = document.getElementById('scrollThumb');
+    let isDragging=false,dragSX=0,scrollStart=0,navStartScroll=0,velocity=0,lastX=0,lastT=0,raf=null;
+
+    scrollEl.addEventListener('pointerdown', e => {
+      isDragging=true; dragSX=e.clientX; scrollStart=navStartScroll=scrollEl.scrollLeft;
+      lastX=e.clientX; lastT=performance.now(); velocity=0;
+      if(raf) cancelAnimationFrame(raf);
+      scrollEl.setPointerCapture(e.pointerId); // keeps tracking even when finger leaves element
+      scrollEl.classList.add('dragging'); e.preventDefault();
+    });
+    scrollEl.addEventListener('pointermove', e => {
+      if(!isDragging) return;
+      const now=performance.now(); velocity=(lastX-e.clientX)/(now-lastT||1)*16;
+      lastX=e.clientX; lastT=now;
+      scrollEl.scrollLeft=scrollStart+(dragSX-e.clientX); syncScrollbar();
+    });
+    scrollEl.addEventListener('pointerup', e => {
+      if(!isDragging) return;
+      isDragging=false; scrollEl.classList.remove('dragging');
+      const dx=e.clientX-dragSX;
+      if(navStartScroll===0&&dx>60){goToHomepage();return;}
+      momentum();
+    });
+    scrollEl.addEventListener('pointercancel', () => {
+      isDragging=false; scrollEl.classList.remove('dragging'); // clean up if OS cancels touch
+    });
+
+    function syncScrollbar() {
+      const {scrollLeft,scrollWidth,clientWidth}=scrollEl;
+      const pct=clientWidth/scrollWidth*100;
+      const left=scrollWidth>clientWidth?(scrollLeft/(scrollWidth-clientWidth))*(100-pct):0;
+      thumb.style.width=pct+'%'; thumb.style.left=left+'%';
+    }
+    function momentum() { velocity*=0.92; if(Math.abs(velocity)<0.3)return; scrollEl.scrollLeft+=velocity; syncScrollbar(); raf=requestAnimationFrame(momentum); }
+    scrollEl.addEventListener('scroll', syncScrollbar);
+    requestAnimationFrame(syncScrollbar);
+
+    // ── Recents: cover flow ──
+    const recentsScroll = document.getElementById('recentsScroll');
+    const CARD_W=300,CARD_H=360,CARD_OFFSET=240,VIEW_CX=240,CARD_TOP=(480-360)/2;
+    const SCALE_BIG=1.0,SCALE_SMALL=0.72,NUM_CARDS=5;
+
+    const rcards = [];
+    for(let i=0;i<NUM_CARDS;i++){
+      const c=document.createElement('div'); c.className='app-card';
+      c.style.cssText=`width:${CARD_W}px;height:${CARD_H}px;top:${CARD_TOP}px;transform-origin:center;`;
+      recentsScroll.appendChild(c); rcards.push(c);
+    }
+
+    let rProgress=0,rAnimRAF=null;
+    function updateRecents(){
+      rcards.forEach((card,i)=>{
+        const dist=i-rProgress, abs=Math.abs(dist);
+        const scale=SCALE_BIG-(SCALE_BIG-SCALE_SMALL)*Math.min(abs,1);
+        card.style.left=(VIEW_CX+dist*CARD_OFFSET-CARD_W/2)+'px';
+        card.style.transform=`scale(${scale})`;
+        card.style.zIndex=abs<0.5?2:1;
+      });
+    }
+    function snapRecentsTo(target){
+      target=Math.max(0,Math.min(NUM_CARDS-1,Math.round(target)));
+      if(rAnimRAF) cancelAnimationFrame(rAnimRAF);
+      const from=rProgress,t0=performance.now(),dur=320;
+      (function step(now){
+        const t=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-t,3);
+        rProgress=from+(target-from)*e; updateRecents();
+        if(t<1) rAnimRAF=requestAnimationFrame(step); else rProgress=target;
+      })(performance.now());
+    }
+
+    let rDragging=false,rStartX=0,rStartProg=0,rLastX=0,rLastT=0,rVel=0,rMightClose=false,rMoved=false;
+    recentsScroll.addEventListener('pointerdown', e=>{
+      rMightClose=!e.target.closest('.app-card'); rDragging=true; rMoved=false;
+      rStartX=rLastX=e.clientX; rStartProg=rProgress; rLastT=performance.now(); rVel=0;
+      if(rAnimRAF) cancelAnimationFrame(rAnimRAF);
+      recentsScroll.setPointerCapture(e.pointerId); e.preventDefault();
+    });
+    recentsScroll.addEventListener('pointermove', e=>{
+      if(!rDragging) return;
+      if(Math.abs(e.clientX-rStartX)>6) rMoved=true;
+      const now=performance.now(); rVel=(rLastX-e.clientX)/(now-rLastT||1); rLastX=e.clientX; rLastT=now;
+      rProgress=Math.max(0,Math.min(NUM_CARDS-1,rStartProg+(rStartX-e.clientX)/CARD_OFFSET));
+      updateRecents();
+    });
+    recentsScroll.addEventListener('pointerup', ()=>{
+      if(!rDragging) return; rDragging=false;
+      if(rMightClose&&!rMoved){closeRecents();return;}
+      let target=rProgress; if(Math.abs(rVel)>0.3) target+=Math.sign(rVel);
+      snapRecentsTo(target);
+    });
+    recentsScroll.addEventListener('pointercancel', ()=>{
+      rDragging=false; // clean up if OS cancels touch
+    });
+    updateRecents();
+  </script>
 </body>
 </html>

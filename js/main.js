@@ -1,8 +1,3 @@
-import { init as initLockscreen } from './lockscreen.js';
-import { init as initHomepage }   from './homepage.js';
-import { init as initHomescreen, handleScrollMove, handleScrollUp } from './homescreen.js';
-import { init as initRecents, handleRecentsMove, handleRecentsUp } from './recents.js';
-
 // Populate app grid
 const grid = document.getElementById('appGrid');
 for (let i = 0; i < 20; i++) {
@@ -12,18 +7,18 @@ for (let i = 0; i < 20; i++) {
 }
 
 // Init all screens
-initLockscreen();
-initHomepage();
-initHomescreen();
-initRecents();
+M.initLockscreen();
+M.initHomepage();
+M.initHomescreen();
+M.initRecents();
 
 // Single window-level pointer handlers, delegated to active module
 window.addEventListener('pointermove', e => {
-  handleScrollMove(e);
-  handleRecentsMove(e);
+  M._scrollMove(e);
+  M._recentsMove(e);
 });
 
 window.addEventListener('pointerup', e => {
-  handleScrollUp(e);
-  handleRecentsUp(e);
+  M._scrollUp(e);
+  M._recentsUp(e);
 });
