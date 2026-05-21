@@ -1,12 +1,12 @@
-import { goBackToAppList, openRecents } from './transitions.js';
+window.M = window.M || {};
 
-function setupBottomZone(el, screenName) {
+M.setupBottomZone = function(el, screenName) {
   let startX = 0, startY = 0, moved = false, timer = null;
 
   el.addEventListener('pointerdown', e => {
     startX = e.clientX; startY = e.clientY; moved = false;
     el.setPointerCapture(e.pointerId);
-    timer = setTimeout(() => { if (!moved) openRecents(screenName); }, 500);
+    timer = setTimeout(() => { if (!moved) M.openRecents(screenName); }, 500);
   });
   el.addEventListener('pointermove', e => {
     if (Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8) {
@@ -15,18 +15,16 @@ function setupBottomZone(el, screenName) {
   });
   el.addEventListener('pointerup', e => {
     clearTimeout(timer);
-    if (startY - e.clientY > 30) openRecents(screenName);
+    if (startY - e.clientY > 30) M.openRecents(screenName);
   });
-}
+};
 
-export function init() {
+M.initHomepage = function() {
   const el = document.getElementById('homepage');
   let startX = 0;
 
   el.addEventListener('pointerdown', e => { startX = e.clientX; });
-  el.addEventListener('pointerup',   e => { if (startX - e.clientX > 60) goBackToAppList(); });
+  el.addEventListener('pointerup',   e => { if (startX - e.clientX > 60) M.goBackToAppList(); });
 
-  setupBottomZone(document.getElementById('home-bz'), 'homepage');
-}
-
-export { setupBottomZone };
+  M.setupBottomZone(document.getElementById('home-bz'), 'homepage');
+};
