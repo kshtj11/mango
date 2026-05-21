@@ -2,156 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; background: transparent; }
-
-    #app {
-      position: fixed;
-      top: 0; left: 0;
-      width: 480px; height: 480px;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    .screen {
-      position: absolute;
-      inset: 0;
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* ── Lock Screen ── */
-    #lockscreen {
-      z-index: 3;
-      background-color: #0d0d0d;
-      background-image: radial-gradient(circle, #2a2a2a 1px, transparent 1px);
-      background-size: 18px 18px;
-    }
-    .statusbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px 0;
-      font-size: 12px;
-      color: #ccc;
-    }
-    .swipe-hint {
-      position: absolute;
-      bottom: 38%;
-      width: 100%;
-      text-align: center;
-      font-size: 13px;
-      color: rgba(255,255,255,0.45);
-    }
-    .wifi { display: flex; align-items: flex-end; gap: 1.5px; height: 12px; }
-    .wifi span { display: block; width: 3px; background: #ccc; border-radius: 1px; }
-    .wifi span:nth-child(1) { height: 5px; }
-    .wifi span:nth-child(2) { height: 8px; }
-    .wifi span:nth-child(3) { height: 11px; }
-    .battery { display: flex; align-items: center; gap: 1px; }
-    .battery-body { width: 20px; height: 10px; border: 1.5px solid #ccc; border-radius: 2px; padding: 1.5px; }
-    .battery-fill { width: 55%; height: 100%; background: #ccc; border-radius: 1px; }
-    .battery-tip { width: 2px; height: 5px; background: #ccc; border-radius: 0 1px 1px 0; }
-
-    /* ── Homepage (dock) ── */
-    #homepage {
-      z-index: 1;
-      background: #050505;
-      display: flex;
-      align-items: flex-end;
-      transform: translateX(-100%);
-    }
-    .home-dock {
-      display: flex;
-      gap: 12px;
-      padding: 16px 16px 24px;
-      width: 100%;
-    }
-
-    /* ── App List Screen ── */
-    #homescreen {
-      z-index: 2;
-      background: #0e0e0e;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 16px 0;
-      gap: 14px;
-      transform: translateY(100%);
-    }
-    .top-dock {
-      display: flex;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-    .search-bar {
-      height: 44px;
-      background: #1a1a1a;
-      border: 1px solid #2c2c2c;
-      border-radius: 22px;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-    .grid-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex: 1;
-      min-height: 0;
-    }
-    .app-scroll {
-      overflow-x: scroll;
-      overflow-y: hidden;
-      scrollbar-width: none;
-      cursor: grab;
-      user-select: none;
-      touch-action: pan-x;
-    }
-    .app-scroll::-webkit-scrollbar { display: none; }
-    .app-scroll.dragging { cursor: grabbing; }
-    .app-grid {
-      display: grid;
-      grid-template-rows: repeat(2, 103px);
-      grid-auto-flow: column;
-      grid-auto-columns: 103px;
-      gap: 12px;
-      width: max-content;
-    }
-    .scrollbar-track {
-      height: 3px;
-      background: #222;
-      border-radius: 2px;
-      margin-bottom: 14px;
-      position: relative;
-      flex-shrink: 0;
-    }
-    .scrollbar-thumb {
-      position: absolute;
-      top: 0; left: 0;
-      height: 100%;
-      background: #555;
-      border-radius: 2px;
-    }
-
-    /* ── App Icon ── */
-    .app-icon {
-      width: 103px;
-      height: 103px;
-      background: #1e1e1e;
-      border-radius: 24px;
-      flex-shrink: 0;
-    }
-
-    /* Left-edge swipe zone on homescreen */
-    #edge-zone {
-      position: absolute;
-      left: 0; top: 0;
-      width: 32px; height: 100%;
-      z-index: 10;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
@@ -179,27 +30,24 @@
         <div class="app-icon"></div>
         <div class="app-icon"></div>
       </div>
+      <div class="bottom-zone" id="home-bz"></div>
     </div>
 
     <!-- Screen 3: App List -->
     <div id="homescreen" class="screen">
-      <!-- left-edge gesture zone -->
       <div id="edge-zone"></div>
-
       <div class="top-dock">
         <div class="app-icon"></div>
         <div class="app-icon"></div>
         <div class="app-icon"></div>
         <div class="app-icon"></div>
       </div>
-
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="7" cy="7" r="5.5" stroke="#555" stroke-width="1.5"/>
           <line x1="11" y1="11" x2="15" y2="15" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </div>
-
       <div class="grid-section">
         <div class="app-scroll" id="appScroll">
           <div class="app-grid" id="appGrid"></div>
@@ -208,118 +56,22 @@
           <div class="scrollbar-thumb" id="scrollThumb"></div>
         </div>
       </div>
+      <div class="bottom-zone" id="list-bz"></div>
+    </div>
+
+    <!-- Screen 4: Recent Apps -->
+    <div id="recents" class="screen">
+      <div class="recents-scroll" id="recentsScroll">
+        <div class="app-card"></div>
+        <div class="app-card"></div>
+        <div class="app-card"></div>
+        <div class="app-card"></div>
+        <div class="app-card"></div>
+      </div>
     </div>
 
   </div>
 
-  <script>
-    const lockscreen = document.getElementById('lockscreen');
-    const homescreen = document.getElementById('homescreen');
-    const homepage   = document.getElementById('homepage');
-    const scrollEl   = document.getElementById('appScroll');
-    const thumb      = document.getElementById('scrollThumb');
-    const edgeZone   = document.getElementById('edge-zone');
-
-    // Populate app grid
-    const grid = document.getElementById('appGrid');
-    for (let i = 0; i < 20; i++) {
-      const el = document.createElement('div');
-      el.className = 'app-icon';
-      grid.appendChild(el);
-    }
-
-    // ── Screen transitions ──
-    function goToAppList() {
-      lockscreen.style.transform  = 'translateY(-100%)';
-      homescreen.style.transform  = 'translateX(0)';
-      homepage.style.transform    = 'translateX(-100%)';
-    }
-
-    function goToHomepage() {
-      homescreen.style.transform  = 'translateX(100%)';
-      homepage.style.transform    = 'translateX(0)';
-    }
-
-    function goBackToAppList() {
-      homescreen.style.transform  = 'translateX(0)';
-      homepage.style.transform    = 'translateX(-100%)';
-    }
-
-    // ── Lock screen: swipe up ──
-    let lockSY = 0;
-    lockscreen.addEventListener('mousedown', e => { lockSY = e.clientY; });
-    lockscreen.addEventListener('mouseup',   e => { if (lockSY - e.clientY > 20) goToAppList(); });
-    lockscreen.addEventListener('touchstart', e => { lockSY = e.touches[0].clientY; }, { passive: true });
-    lockscreen.addEventListener('touchend',   e => { if (lockSY - e.changedTouches[0].clientY > 20) goToAppList(); });
-
-    // ── Edge zone: swipe right to go to homepage ──
-    let edgeSX = 0;
-    edgeZone.addEventListener('pointerdown', e => {
-      edgeSX = e.clientX;
-      edgeZone.setPointerCapture(e.pointerId);
-    });
-    edgeZone.addEventListener('pointerup', e => {
-      if (e.clientX - edgeSX > 60) goToHomepage();
-    });
-
-    // ── Homepage: swipe left to go back ──
-    let homeSX = 0;
-    homepage.addEventListener('pointerdown', e => { homeSX = e.clientX; });
-    homepage.addEventListener('pointerup',   e => { if (homeSX - e.clientX > 60) goBackToAppList(); });
-
-    // ── App scroll: drag with momentum ──
-    let isDragging = false, dragSX = 0, scrollStart = 0;
-    let velocity = 0, lastX = 0, lastT = 0, raf = null;
-
-    scrollEl.addEventListener('pointerdown', e => {
-      isDragging = true;
-      dragSX = e.clientX;
-      scrollStart = scrollEl.scrollLeft;
-      lastX = e.clientX; lastT = performance.now(); velocity = 0;
-      if (raf) cancelAnimationFrame(raf);
-      scrollEl.setPointerCapture(e.pointerId);
-      scrollEl.classList.add('dragging');
-      e.preventDefault();
-    });
-
-    scrollEl.addEventListener('pointermove', e => {
-      if (!isDragging) return;
-      const now = performance.now();
-      velocity = (lastX - e.clientX) / (now - lastT || 1) * 16;
-      lastX = e.clientX; lastT = now;
-      scrollEl.scrollLeft = scrollStart + (dragSX - e.clientX);
-      syncScrollbar();
-    });
-
-    scrollEl.addEventListener('pointerup', () => {
-      isDragging = false;
-      scrollEl.classList.remove('dragging');
-      momentum();
-    });
-    scrollEl.addEventListener('pointercancel', () => {
-      isDragging = false;
-      scrollEl.classList.remove('dragging');
-    });
-
-    function momentum() {
-      velocity *= 0.92;
-      if (Math.abs(velocity) < 0.3) return;
-      scrollEl.scrollLeft += velocity;
-      syncScrollbar();
-      raf = requestAnimationFrame(momentum);
-    }
-
-    function syncScrollbar() {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollEl;
-      const thumbPct = clientWidth / scrollWidth * 100;
-      const leftPct  = scrollWidth > clientWidth
-        ? (scrollLeft / (scrollWidth - clientWidth)) * (100 - thumbPct) : 0;
-      thumb.style.width = thumbPct + '%';
-      thumb.style.left  = leftPct + '%';
-    }
-
-    scrollEl.addEventListener('scroll', syncScrollbar);
-    requestAnimationFrame(syncScrollbar);
-  </script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
