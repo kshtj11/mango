@@ -318,10 +318,10 @@
       })(performance.now());
     }
 
-    let rDragging=false,rStartX=0,rStartProg=0,rLastX=0,rLastT=0,rVel=0,rMightClose=false,rMoved=false;
+    let rDragging=false,rStartX=0,rStartY=0,rStartProg=0,rLastX=0,rLastT=0,rVel=0,rMightClose=false,rMoved=false;
     recentsScroll.addEventListener('pointerdown', e=>{
       rMightClose=!e.target.closest('.app-card'); rDragging=true; rMoved=false;
-      rStartX=rLastX=e.clientX; rStartProg=rProgress; rLastT=performance.now(); rVel=0;
+      rStartX=rLastX=e.clientX; rStartY=e.clientY; rStartProg=rProgress; rLastT=performance.now(); rVel=0;
       if(rAnimRAF) cancelAnimationFrame(rAnimRAF);
       recentsScroll.setPointerCapture(e.pointerId); e.preventDefault();
     });
@@ -332,9 +332,11 @@
       rProgress=Math.max(0,Math.min(NUM_CARDS-1,rStartProg+(rStartX-e.clientX)/CARD_OFFSET));
       updateRecents();
     });
-    recentsScroll.addEventListener('pointerup', ()=>{
+    recentsScroll.addEventListener('pointerup', e=>{
       if(!rDragging) return; rDragging=false;
       if(rMightClose&&!rMoved){closeRecents();return;}
+      const dy=e.clientY-rStartY, dx=Math.abs(e.clientX-rStartX);
+      if(dy>50&&dy>dx){closeRecents();return;} // swipe down dismisses
       let target=rProgress; if(Math.abs(rVel)>0.3) target+=Math.sign(rVel);
       snapRecentsTo(target);
     });
