@@ -21,7 +21,7 @@
     /* ── Status Bar ── */
     .status-bar {
       display:flex; justify-content:space-between; align-items:center;
-      padding:10px 16px 0; font-size:11px; color:#ccc; flex-shrink:0;
+      padding:10px 16px 0; font-size:15px; color:#ccc; flex-shrink:0;
     }
     .sb-icons { display:flex; align-items:center; gap:6px; }
     .wifi { display:flex; align-items:flex-end; gap:1.5px; height:11px; }
@@ -44,7 +44,7 @@
       font-size:76px; font-weight:200; color:#ddd;
       text-align:center; margin-top:48px; letter-spacing:-3px;
     }
-    #lock-date { font-size:14px; color:#555; text-align:center; margin-top:6px; }
+    #lock-date { font-size:15px; color:#555; text-align:center; margin-top:6px; }
     .notif-pills { display:flex; flex-direction:column; gap:10px; margin:28px 20px 0; }
     .notif-pill {
       background:rgba(28,28,28,0.85); border-radius:16px;
@@ -52,20 +52,20 @@
     }
     .notif-pill-icon { width:28px; height:28px; background:#2a2a2a; border-radius:8px; flex-shrink:0; }
     .notif-pill-body { flex:1; min-width:0; }
-    .notif-pill-app  { font-size:10px; color:#555; margin-bottom:3px; }
-    .notif-pill-text { font-size:12px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .notif-pill-time { font-size:10px; color:#444; flex-shrink:0; }
+    .notif-pill-app  { font-size:15px; color:#555; margin-bottom:3px; }
+    .notif-pill-text { font-size:15px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .notif-pill-time { font-size:15px; color:#444; flex-shrink:0; }
     .swipe-hint {
       position:absolute; bottom:24px; width:100%;
-      text-align:center; font-size:12px; color:rgba(255,255,255,0.25);
+      text-align:center; font-size:15px; color:rgba(255,255,255,0.25);
     }
 
     /* ── App cell (shared between top-dock, app-grid, folder) ── */
     .app-cell { width:103px; display:flex; flex-direction:column; align-items:center; position:relative; }
-    .app-icon { width:103px; height:80px; background:#1e1e1e; border-radius:22px; flex-shrink:0; }
-    .app-label { font-size:10px; color:#3a3a3a; margin-top:5px; white-space:nowrap; }
+    .app-icon { width:80px; height:80px; background:#1e1e1e; border-radius:20px; flex-shrink:0; }
+    .app-label { font-size:13px; color:#3a3a3a; margin-top:5px; white-space:nowrap; }
     .badge {
-      position:absolute; top:5px; right:5px;
+      position:absolute; top:5px; right:17px; /* 17px = (103-80)/2 + 5 — hugs top-right of icon */
       width:8px; height:8px; background:#2e2e2e; border-radius:50%;
     }
 
@@ -76,12 +76,12 @@
       align-items:center; justify-content:center;
     }
     #widget-time { font-size:60px; font-weight:200; color:#1a1a1a; letter-spacing:-2px; }
-    #widget-date { font-size:13px; color:#181818; margin-top:6px; }
+    #widget-date { font-size:15px; color:#181818; margin-top:6px; }
     .home-bottom { position:relative; z-index:25; } /* above bottom-zone z:20 */
     .home-dock { display:flex; gap:8px; padding:10px 16px 0; }
     .dock-cell { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
-    .dock-icon { width:100%; height:68px; background:#1e1e1e; border-radius:18px; }
-    .dock-label { font-size:9px; color:#2e2e2e; }
+    .dock-icon { width:68px; height:68px; background:#1e1e1e; border-radius:18px; }
+    .dock-label { font-size:13px; color:#2e2e2e; }
     .home-indicator { width:90px; height:4px; background:#181818; border-radius:2px; margin:10px auto 12px; }
 
     /* ── App List ── */
@@ -96,7 +96,7 @@
       border-radius:22px; display:flex; align-items:center;
       padding:0 16px; gap:10px; flex-shrink:0; margin:0 16px; cursor:pointer;
     }
-    .search-placeholder { font-size:13px; color:#3a3a3a; }
+    .search-placeholder { font-size:15px; color:#3a3a3a; }
     .grid-section { display:flex; flex-direction:column; flex:1; min-height:0; position:relative; padding:0 16px; }
     .app-scroll { overflow-x:scroll; overflow-y:hidden; scrollbar-width:none; cursor:grab; user-select:none; flex:1; min-height:0; }
     .app-scroll::-webkit-scrollbar { display:none; }
@@ -122,17 +122,17 @@
       padding:12px 0; gap:12px; overflow-y:auto;
     }
     #search-overlay.visible { display:flex; }
-    .search-sec-label { font-size:10px; color:#3a3a3a; letter-spacing:0.6px; padding:0 4px; }
+    .search-sec-label { font-size:15px; color:#3a3a3a; letter-spacing:0.6px; padding:0 4px; }
     .search-recent-row {
       display:flex; align-items:center; gap:12px;
       padding:10px 4px; border-bottom:1px solid #151515;
     }
     .search-recent-icon { width:34px; height:34px; background:#1e1e1e; border-radius:10px; flex-shrink:0; }
-    .search-recent-name { font-size:13px; color:#444; }
+    .search-recent-name { font-size:15px; color:#444; }
     .search-sug-row { display:flex; gap:10px; padding:0 4px; flex-wrap:wrap; }
     .search-sug-cell { display:flex; flex-direction:column; align-items:center; gap:4px; }
     .search-sug-icon { width:54px; height:54px; background:#1e1e1e; border-radius:14px; }
-    .search-sug-label { font-size:9px; color:#3a3a3a; }
+    .search-sug-label { font-size:13px; color:#3a3a3a; }
 
     /* ── Gesture zones ── */
     #edge-zone    { position:absolute; left:0; top:0; width:40px; height:100%; z-index:10; }
@@ -147,11 +147,11 @@
       position:absolute; background:#252525; border-radius:24px;
       will-change:transform,left; display:flex; flex-direction:column;
     }
-    .card-label { font-size:11px; color:#444; padding:12px 14px 0; flex-shrink:0; }
+    .card-label { font-size:15px; color:#444; padding:12px 14px 0; flex-shrink:0; }
     #clear-all-pill {
       position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
       background:#1e1e1e; border-radius:14px; padding:8px 28px;
-      font-size:12px; color:#444; cursor:pointer; z-index:5; white-space:nowrap;
+      font-size:15px; color:#444; cursor:pointer; z-index:5; white-space:nowrap;
     }
 
     /* ── Settings Drawer ── */
@@ -172,7 +172,7 @@
     }
     .qs-tile.wide { grid-column:span 2; height:70px; }
     .qs-icon { width:22px; height:22px; background:#2e2e2e; border-radius:6px; margin-bottom:6px; }
-    .qs-label { font-size:9px; color:#3a3a3a; }
+    .qs-label { font-size:13px; color:#3a3a3a; }
 
     /* Notification panel */
     .notif-list { display:flex; flex-direction:column; overflow-y:auto; flex:1; }
@@ -182,8 +182,8 @@
     }
     .notif-row-icon { width:32px; height:32px; background:#1e1e1e; border-radius:8px; flex-shrink:0; margin-top:1px; }
     .notif-row-body { flex:1; min-width:0; }
-    .notif-row-title { font-size:11px; color:#555; margin-bottom:3px; }
-    .notif-row-msg { font-size:11px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .notif-row-title { font-size:15px; color:#555; margin-bottom:3px; }
+    .notif-row-msg { font-size:15px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     /* Message panel */
     .msg-list { display:flex; flex-direction:column; overflow-y:auto; flex:1; }
@@ -193,10 +193,10 @@
     }
     .msg-avatar { width:40px; height:40px; background:#1e1e1e; border-radius:50%; flex-shrink:0; }
     .msg-body { flex:1; min-width:0; }
-    .msg-name { font-size:12px; color:#555; margin-bottom:3px; }
-    .msg-preview { font-size:11px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .msg-name { font-size:15px; color:#555; margin-bottom:3px; }
+    .msg-preview { font-size:15px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .msg-meta { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
-    .msg-time { font-size:10px; color:#333; }
+    .msg-time { font-size:15px; color:#333; }
     .msg-unread-dot { width:7px; height:7px; background:#383838; border-radius:50%; }
 
     /* Misc panel */
@@ -205,7 +205,7 @@
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 16px; border-bottom:1px solid #161616;
     }
-    .misc-label { font-size:13px; color:#555; }
+    .misc-label { font-size:15px; color:#555; }
     .toggle { width:36px; height:20px; background:#222; border-radius:10px; position:relative; cursor:pointer; transition:background 0.2s; }
     .toggle.on { background:#353535; }
     .toggle-knob { position:absolute; top:3px; left:3px; width:14px; height:14px; background:#3a3a3a; border-radius:50%; transition:left 0.2s, background 0.2s; }
@@ -215,7 +215,7 @@
     .settings-tabs { display:flex; gap:8px; padding:10px 16px 16px; flex-shrink:0; }
     .s-tab {
       flex:1; height:38px; display:flex; align-items:center; justify-content:center;
-      border-radius:10px; background:#1a1a1a; color:#555; font-size:11px;
+      border-radius:10px; background:#1a1a1a; color:#555; font-size:15px;
       cursor:pointer; transition:background 0.15s, color 0.15s;
     }
     .s-tab.active { background:#272727; color:#ccc; }
@@ -231,13 +231,13 @@
       background:#161616; border-radius:28px; padding:20px 22px;
       display:flex; flex-direction:column; align-items:center; gap:16px; width:340px;
     }
-    .folder-name { font-size:12px; color:#444; }
+    .folder-name { font-size:15px; color:#444; }
     .folder-grid { display:grid; grid-template-columns:repeat(3,72px); gap:14px; }
     .folder-app { display:flex; flex-direction:column; align-items:center; gap:4px; }
     .folder-icon { width:72px; height:72px; background:#1e1e1e; border-radius:18px; }
-    .folder-lbl { font-size:9px; color:#3a3a3a; }
+    .folder-lbl { font-size:13px; color:#3a3a3a; }
     .folder-close {
-      font-size:12px; color:#444; background:#1e1e1e;
+      font-size:15px; color:#444; background:#1e1e1e;
       padding:8px 28px; border-radius:12px; cursor:pointer;
     }
   </style>
@@ -546,7 +546,11 @@
   const lockEl = $('lockscreen');
   let lockSY = 0;
   lockEl.addEventListener('pointerdown', e => { lockSY = e.clientY; lockEl.setPointerCapture(e.pointerId); });
-  lockEl.addEventListener('pointerup',   e => { if (lockSY - e.clientY > 20) goToAppList(); });
+  lockEl.addEventListener('pointerup', e => {
+    const dy = lockSY - e.clientY;
+    if (dy > 20)          { goToAppList(); return; }   // swipe up  → unlock
+    if (dy < -30 && lockSY < 44) { openSettings(); }  // swipe down from top bar → settings
+  });
 
   // ══════════════════════════════════════════════
   // Homepage — swipe left, dock folder tap
